@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Onde está meu ônibus</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="topo">
+    <h1>Onde está meu ônibus</h1>
+    <p>Veja em tempo real onde estão os ônibus da sua linha</p>
+  </header>
+
+  <main class="conteudo">
+    <form class="busca" onsubmit="buscarLinhas(event)" novalidate>
+      <label for="campo-busca">Número ou nome da linha</label>
+      <div class="busca-linha">
+        <input type="text" id="campo-busca" class="campo-busca" placeholder="Ex.: 875A, 8000, Lapa">
+        <button type="submit" class="btn">Buscar</button>
+      </div>
+    </form>
+
+    <p class="mensagem mensagem-busca" role="status"></p>
+    <div class="lista-linhas resultados"></div>
+
+    <section class="favoritos escondido">
+      <h2>Minhas linhas</h2>
+      <div class="lista-linhas lista-favoritos"></div>
+    </section>
+
+    <section id="painel" class="painel escondido">
+      <div class="painel-topo">
+        <div>
+          <span class="letreiro painel-letreiro"></span>
+          <h2 class="painel-destino"></h2>
+        </div>
+        <div class="painel-botoes">
+          <button class="btn-estrela btn-estrela-painel" title="Salvar em minhas linhas" onclick="favoritarLinhaAberta()">☆</button>
+          <button class="btn btn-contorno" onclick="fecharPainel()">Fechar</button>
+        </div>
+      </div>
+
+      <div class="atualizacao">
+        <span class="hora-atualizacao"></span>
+        <button class="btn btn-contorno" onclick="atualizarAgora()">Atualizar</button>
+      </div>
+
+      <div class="painel-corpo">
+        <div>
+          <div id="mapa" class="mapa"></div>
+          <p class="legenda">
+            <span class="legenda-acessivel">Ônibus acessível</span>
+            <span class="legenda-onibus">Ônibus</span>
+          </p>
+        </div>
+
+        <div>
+          <p class="mensagem mensagem-painel" role="status"></p>
+          <label class="check">
+            <input type="checkbox" class="filtro-acessivel" onchange="mostrarOnibus()">
+            Só ônibus acessíveis
+          </label>
+          <div class="lista-onibus"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="rodape">
+    <p>
+      Dados: <a href="https://www.sptrans.com.br/desenvolvedores/" target="_blank">SPTrans (API Olho Vivo)</a>.
+      Mapa: <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>.
+    </p>
+    <p>As posições vêm do GPS dos ônibus e podem ter alguns segundos de atraso.</p>
+    <p>Global Solution 2026.2 - Application Development - FIAP</p>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+          integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  <script src="config.js"></script>
+  <script src="mapa.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

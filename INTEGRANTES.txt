@@ -1,0 +1,9 @@
+Onde está meu ônibus - Global Solution 2026.2 - Application Development (2CCPS)
+
+INTEGRANTES
+- João Vitor Anunciação Oliveira - RM567539
+- Paulo Ribeiro Marinho - RM567459
+
+O QUE CADA UM FEZ
+- João Vitor Anunciação Oliveira: desenvolvimento do app (HTML, CSS e JavaScript), integração com a API Olho Vivo, função serverless, mapa e publicação no Vercel.
+- Paulo Ribeiro Marinho: testes de uso no celular, revisão do código e do README.

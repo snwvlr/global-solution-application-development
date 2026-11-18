@@ -1,0 +1,10 @@
+{
+  "name": "onde-esta-meu-onibus",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Posição em tempo real dos ônibus de São Paulo com a API Olho Vivo da SPTrans",
+  "type": "module",
+  "scripts": {
+    "dev": "node dev-server.js"
+  }
+}
