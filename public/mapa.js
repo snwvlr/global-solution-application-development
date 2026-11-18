@@ -49,6 +49,12 @@ function mostrarNoMapa(linha, listaOnibus) {
   }
 }
 
+function limparMapa() {
+  if (marcadores !== null) {
+    marcadores.clearLayers();
+  }
+}
+
 function focarOnibus(lat, lng) {
   mapa.setView([lat, lng], 16);
 }

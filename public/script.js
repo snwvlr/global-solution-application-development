@@ -19,14 +19,20 @@ let onibus = [];
 let temporizador = null;
 
 function mensagemDeErro(status) {
+  if (status === 400) {
+    return "Não foi possível fazer essa consulta. Confira o que foi digitado.";
+  }
   if (status === 401) {
     return "A SPTrans recusou o token do app. Tente mais tarde.";
   }
   if (status === 429) {
     return "Muitas consultas seguidas. Espere alguns segundos.";
   }
-  if (status === 504) {
-    return "A SPTrans demorou para responder. Tente de novo.";
+  if (status === 500) {
+    return "O app está sem acesso à SPTrans no momento. Tente mais tarde.";
+  }
+  if (status === 502 || status === 504) {
+    return "A SPTrans demorou ou não respondeu. Tente de novo.";
   }
   return "A SPTrans não respondeu (status " + status + "). Tente de novo.";
 }
@@ -44,6 +50,17 @@ function destino(linha) {
   return linha.ts;
 }
 
+function textoSentido(linha) {
+  // linha circular sai e volta para o mesmo terminal, então mostramos ida e volta em vez do destino
+  if (linha.lc) {
+    if (linha.sl === 1) {
+      return "Linha circular (ida)";
+    }
+    return "Linha circular (volta)";
+  }
+  return "Sentido " + destino(linha);
+}
+
 async function buscarLinhas(event) {
   event.preventDefault();
   const termo = campoBusca.value.trim();
@@ -55,9 +72,11 @@ async function buscarLinhas(event) {
 
   mensagemBusca.textContent = "Buscando...";
   resultados.innerHTML = "";
+  linhasEncontradas = [];
 
   try {
-    const resposta = await fetch(API_URL + "?rota=Linha/Buscar&termosBusca=" + termo);
+    // sem o encodeURIComponent, um # ou & digitado na busca quebra a URL
+    const resposta = await fetch(API_URL + "?rota=Linha/Buscar&termosBusca=" + encodeURIComponent(termo));
 
     if (resposta.status !== 200) {
       mensagemBusca.textContent = mensagemDeErro(resposta.status);
@@ -104,7 +123,7 @@ function renderizarLinhas(div, lista) {
       <div class="item-linha">
         <span class="letreiro">${letreiro(linha)}</span>
         <div class="item-info">
-          <h3>Sentido ${destino(linha)}</h3>
+          <h3>${textoSentido(linha)}</h3>
           <p>${linha.tp} - ${linha.ts}</p>
         </div>
         <div class="item-botoes">
@@ -156,10 +175,11 @@ function abrirLinha(cl) {
   onibus = [];
 
   painelLetreiro.textContent = letreiro(linhaAberta);
-  painelDestino.textContent = "Sentido " + destino(linhaAberta);
+  painelDestino.textContent = textoSentido(linhaAberta);
   estrelaPainel.textContent = estrelaDe(cl);
   horaAtualizacao.textContent = "";
   listaOnibus.innerHTML = "";
+  limparMapa();
 
   painel.classList.remove("escondido");
 
@@ -195,27 +215,31 @@ async function carregarPosicoes() {
     mensagemPainel.textContent = "Carregando...";
   }
 
+  let dados;
   try {
     const resposta = await fetch(API_URL + "?rota=Posicao/Linha&codigoLinha=" + linha.cl);
-
-    if (resposta.status !== 200) {
-      mensagemPainel.textContent = mensagemDeErro(resposta.status);
-      return;
-    }
-
-    const dados = await resposta.json();
 
     // se a pessoa trocou de linha enquanto a resposta chegava, a gente ignora essa resposta antiga
     if (linhaAberta !== linha) {
       return;
     }
 
-    onibus = dados.vs || [];
-    horaAtualizacao.textContent = "Atualizado às " + dados.hr;
-    mostrarOnibus();
+    if (resposta.status !== 200) {
+      mensagemPainel.textContent = mensagemDeErro(resposta.status);
+      return;
+    }
+
+    dados = await resposta.json();
   } catch (erro) {
-    mensagemPainel.textContent = "Não foi possível conectar. Verifique a internet.";
+    if (linhaAberta === linha) {
+      mensagemPainel.textContent = "Não foi possível conectar. Verifique a internet.";
+    }
+    return;
   }
+
+  onibus = dados.vs || [];
+  horaAtualizacao.textContent = "Atualizado às " + dados.hr;
+  mostrarOnibus();
 }
 
 function mostrarOnibus() {
